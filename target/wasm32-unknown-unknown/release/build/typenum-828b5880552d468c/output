@@ -1,0 +1,2 @@
+cargo:rustc-env=TYPENUM_BUILD_CONSTS=/Users/jsawyer/Documents/code/rust/escrow_contract/target/wasm32-unknown-unknown/release/build/typenum-828b5880552d468c/out/consts.rs
+cargo:rustc-env=TYPENUM_BUILD_OP=/Users/jsawyer/Documents/code/rust/escrow_contract/target/wasm32-unknown-unknown/release/build/typenum-828b5880552d468c/out/op.rs

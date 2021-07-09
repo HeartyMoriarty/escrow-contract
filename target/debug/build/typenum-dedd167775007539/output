@@ -1,0 +1,2 @@
+cargo:rustc-env=TYPENUM_BUILD_CONSTS=/Users/jsawyer/Documents/code/rust/escrow_contract/target/debug/build/typenum-dedd167775007539/out/consts.rs
+cargo:rustc-env=TYPENUM_BUILD_OP=/Users/jsawyer/Documents/code/rust/escrow_contract/target/debug/build/typenum-dedd167775007539/out/op.rs
