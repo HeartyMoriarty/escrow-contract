@@ -181,21 +181,21 @@ mod tests {
     use near_sdk::MockedBlockchain;
     use near_sdk::{testing_env, VMContext};
 
-    fn bigpeepee69() -> String {
-        "bigpeepee69".to_string()
+    fn jim() -> String {
+        "jim".to_string()
     }
 
-    fn bigpoopoo96() -> String {
-        "bigpoopoo96".to_string()
+    fn peggy() -> String {
+        "peggy".to_string()
     }
 
 
     fn get_context(input: Vec<u8>, is_view: bool, sender: AccountId) -> VMContext {
         VMContext {
             current_account_id: sender,
-            signer_account_id: "bigpoopoo96.testnet".to_string(),
+            signer_account_id: "peggy.testnet".to_string(),
             signer_account_pk: vec![0, 1, 2],
-            predecessor_account_id: "bigpoopoo96.testnet".to_string(),
+            predecessor_account_id: "peggy.testnet".to_string(),
             input,
             block_index: 0,
             block_timestamp: 0,
@@ -214,40 +214,111 @@ mod tests {
     #[test]
     fn add_tx() {
         // set up the mock context into the testing environment
-        let context = get_context(vec![], false, bigpeepee69());
+        let context = get_context(vec![], false, jim());
         testing_env!(context);
         let ass = Asset {
-            name: "poop".to_string(),
+            name: "soda pop".to_string(),
             quantity: 4.0
         };
-        let tx = Transaction::new(bigpeepee69(), 
-            bigpoopoo96(), 
+        let tx = Transaction::new(jim(), 
+            peggy(), 
             ass);
         // instantiate a contract variable with the counter at zero
-        let mut contract = Contract::new([bigpeepee69()].to_vec());
-        contract.add_tx("shit trade".to_string(), bigpeepee69(), bigpoopoo96(), "poop".to_string(), 4.0);
-        let same_tx = contract.get_tx("shit trade".to_string());
+        let mut contract = Contract::new([jim()].to_vec());
+        contract.add_tx("soda trade".to_string(), jim(), peggy(), "soda pop".to_string(), 4.0);
+        let same_tx = contract.get_tx("soda trade".to_string());
         assert!(same_tx == tx);
     }
 
     #[test]
     fn rm_tx() {
         // set up the mock context into the testing environment
-        let context = get_context(vec![], false, bigpeepee69());
+        let context = get_context(vec![], false, jim());
+        testing_env!(context);
+        // instantiate a contract variable with the counter at zero
+        let mut contract = Contract::new([jim()].to_vec());
+        contract.add_tx("soda trade".to_string(), jim(), peggy(), "soda pop".to_string(), 4.0);
+        contract.rm_tx( "soda trade".to_string());
+        assert!(contract.transactions.get(&"soda trade".to_string()).is_none());
+    }
+
+    #[test]
+    #[should_panic]
+    fn add_tx_when_not_owner() {
+        // set up the mock context into the testing environment
+        let context = get_context(vec![], false, jim());
+        testing_env!(context);
+        // instantiate a contract variable with the counter at zero
+        let mut contract = Contract::new([peggy()].to_vec());
+        contract.add_tx("soda trade".to_string(), jim(), peggy(), "soda pop".to_string(), 4.0);
+    }
+
+    #[test]
+    #[should_panic]
+    fn rm_tx_when_not_owner() {
+        // set up the mock context into the testing environment
+        let context = get_context(vec![], false, jim());
         testing_env!(context);
         let ass = Asset {
-            name: "poop".to_string(),
+            name: "soda pop".to_string(),
             quantity: 4.0
         };
-        let tx = Transaction::new(bigpeepee69(), 
-            bigpoopoo96(), 
+        let tx = Transaction::new(jim(), 
+            peggy(), 
             ass);
         // instantiate a contract variable with the counter at zero
-        let mut contract = Contract::new([bigpeepee69()].to_vec());
-        contract.add_tx("shit trade".to_string(), bigpeepee69(), bigpoopoo96(), "poop".to_string(), 4.0);
-        let same_tx = contract.get_tx("shit trade".to_string());
+        let mut contract = Contract::new([jim()].to_vec());
+        contract.add_tx("soda trade".to_string(), jim(), peggy(), "soda pop".to_string(), 4.0);
+        let same_tx = contract.get_tx("soda trade".to_string());
         assert!(same_tx == tx);
-        contract.rm_tx( "shit trade".to_string());
-        assert!(contract.transactions.get(&"shit trade".to_string()).is_none());
+        let context = get_context(vec![], false, peggy());
+        testing_env!(context);
+        contract.rm_tx( "soda trade".to_string());
+    }
+
+    #[test]
+    #[should_panic]
+    fn sign_tx_when_not_owner() {
+        // set up the mock context into the testing environment
+        let context = get_context(vec![], false, jim());
+        testing_env!(context);
+        // instantiate a contract variable with the counter at zero
+        let mut contract = Contract::new([jim()].to_vec());
+        contract.add_tx("soda trade".to_string(), jim(), peggy(), "soda pop".to_string(), 4.0);
+        let context = get_context(vec![], false, peggy());
+        testing_env!(context);
+        contract.sign();
+    }
+
+    #[test]
+    #[should_panic]
+    fn add_tx_when_after_agreement() {
+        // set up the mock context into the testing environment
+        let context = get_context(vec![], false, jim());
+        testing_env!(context);
+        // instantiate a contract variable with the counter at zero
+        let mut contract = Contract::new([peggy(), jim()].to_vec());
+        contract.add_tx("soda trade".to_string(), jim(), peggy(), "soda pop".to_string(), 4.0);
+        contract.sign();
+        let context = get_context(vec![], false, peggy());
+        testing_env!(context);
+        contract.sign();
+        contract.add_tx("soda trade2".to_string(), peggy(), jim(), "cornbread".to_string(), 4.0);
+    }
+
+    #[test]
+    #[should_panic]
+    fn rm_tx_after_agreement() {
+        // set up the mock context into the testing environment
+        let context = get_context(vec![], false, jim());
+        testing_env!(context);
+        // instantiate a contract variable with the counter at zero
+        let mut contract = Contract::new([jim(), peggy()].to_vec());
+        contract.add_tx("soda trade".to_string(), jim(), peggy(), "soda pop".to_string(), 4.0);
+        contract.sign();
+        let context = get_context(vec![], false, peggy());
+        testing_env!(context);
+        contract.sign();
+        contract.rm_tx( "soda trade".to_string());
     }
 }
